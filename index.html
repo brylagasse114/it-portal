@@ -835,8 +835,9 @@ async function submitTicket() {
   record['Submitted_At'] = { value: new Date().toISOString() };
 
   try {
+    const targetUrl = `https://${KINTONE_SUBDOMAIN}.kintone.com/k/v1/record.json`;
     const response = await fetch(
-      `https://${KINTONE_SUBDOMAIN}.kintone.com/k/v1/record.json`,
+      `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
       {
         method: 'POST',
         headers: {
