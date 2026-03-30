@@ -1,102 +1,334 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Can-one USA — IT Help Desk</title>
+// ─────────────────────────────────────────────
+//  KINTONE CONFIGURATION — fill these in!
+// ─────────────────────────────────────────────
+const KINTONE_SUBDOMAIN = 'can-one';
+const KINTONE_APP_ID    = '30';
+const KINTONE_API_TOKEN = 'TpgvChluSwcEX8mxYcP53qFeqRZtVvRC7BzvhGED';
+// ─────────────────────────────────────────────
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+let currentPriority = 'Medium';
+let currentFormType = '';
 
-<link rel="stylesheet" href="style.css">
-</head>
+const FORMS = {
+  newhire: {
+    icon: '🧑‍💼', title: 'New Hire Setup', sub: 'Complete all fields to provision a new employee',
+    fields: () => `
+      <div class="form-row">
+        <div class="field"><label>Your Name <span class="req">*</span></label><input id="f_requester" placeholder="Your full name" required></div>
+        <div class="field"><label>Your Email <span class="req">*</span></label><input id="f_email" type="email" placeholder="you@can-one.com" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>New Hire Full Name <span class="req">*</span></label><input id="f_newhire_name" placeholder="Employee's full name" required></div>
+        <div class="field"><label>New Hire Job Title <span class="req">*</span></label><input id="f_newhire_title" placeholder="e.g. Sales Associate"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Department</label><input id="f_dept" placeholder="e.g. Operations"></div>
+        <div class="field"><label>Start Date <span class="req">*</span></label><input id="f_startdate" type="date" required></div>
+      </div>
+      <div class="field full"><label>Systems / Applications Needed</label><textarea id="f_systems" placeholder="List the software, systems, or access the new hire will need..."></textarea></div>
+      <div class="field full"><label>Additional Notes</label><textarea id="f_notes" placeholder="Any other setup requirements..."></textarea></div>
+    `,
+    getData: () => ({
+      'Ticket_Type':     { value: 'New Hire Setup' },
+      'Requester_Name':  { value: v('f_requester') },
+      'Requester_Email': { value: v('f_email') },
+      'New_Hire_Name':   { value: v('f_newhire_name') },
+      'New_Hire_Title':  { value: v('f_newhire_title') },
+      'Department':      { value: v('f_dept') },
+      'Start_Date':      { value: v('f_startdate') },
+      'Systems_Needed':  { value: v('f_systems') },
+      'Notes':           { value: v('f_notes') },
+      'Priority':        { value: currentPriority },
+    })
+  },
+  general: {
+    icon: '🎫', title: 'General IT Request', sub: 'Describe your issue and we\'ll take it from there',
+    fields: () => `
+      <div class="form-row">
+        <div class="field"><label>Your Name <span class="req">*</span></label><input id="f_requester" placeholder="Your full name" required></div>
+        <div class="field"><label>Your Email <span class="req">*</span></label><input id="f_email" type="email" placeholder="you@can-one.com" required></div>
+      </div>
+      <div class="field full"><label>Subject <span class="req">*</span></label><input id="f_subject" placeholder="Brief summary of your request" required></div>
+      <div class="field full"><label>Description <span class="req">*</span></label><textarea id="f_desc" placeholder="Describe your issue or request in detail..." required></textarea></div>
+      <div class="field full"><label>Additional Notes</label><textarea id="f_notes" placeholder="Anything else we should know?"></textarea></div>
+    `,
+    getData: () => ({
+      'Ticket_Type':     { value: 'General IT Request' },
+      'Requester_Name':  { value: v('f_requester') },
+      'Requester_Email': { value: v('f_email') },
+      'Subject':         { value: v('f_subject') },
+      'Description':     { value: v('f_desc') },
+      'Notes':           { value: v('f_notes') },
+      'Priority':        { value: currentPriority },
+    })
+  },
+  internet: {
+    icon: '🌐', title: 'Internet / Connectivity Issue', sub: 'Report network or connection problems',
+    fields: () => `
+      <div class="form-row">
+        <div class="field"><label>Your Name <span class="req">*</span></label><input id="f_requester" placeholder="Your full name" required></div>
+        <div class="field"><label>Your Email <span class="req">*</span></label><input id="f_email" type="email" placeholder="you@can-one.com" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Issue Type <span class="req">*</span></label>
+          <select id="f_issue_type">
+            <option value="">Select...</option>
+            <option>No internet connection</option>
+            <option>Slow internet</option>
+            <option>Wi-Fi dropping</option>
+            <option>VPN not connecting</option>
+            <option>Can't reach specific site/service</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field"><label>Your Location / Office</label><input id="f_location" placeholder="e.g. Building A, Desk 12"></div>
+      </div>
+      <div class="field full"><label>Description <span class="req">*</span></label><textarea id="f_desc" placeholder="What exactly is happening? When did it start?" required></textarea></div>
+      <div class="field full"><label>Steps Already Tried</label><textarea id="f_tried" placeholder="e.g. Restarted router, tried another device..."></textarea></div>
+    `,
+    getData: () => ({
+      'Ticket_Type':     { value: 'Internet / Connectivity' },
+      'Requester_Name':  { value: v('f_requester') },
+      'Requester_Email': { value: v('f_email') },
+      'Issue_Type':      { value: v('f_issue_type') },
+      'Location':        { value: v('f_location') },
+      'Description':     { value: v('f_desc') },
+      'Steps_Tried':     { value: v('f_tried') },
+      'Priority':        { value: currentPriority },
+    })
+  },
+  hardware: {
+    icon: '🖥️', title: 'Hardware / Equipment', sub: 'Report broken or malfunctioning devices',
+    fields: () => `
+      <div class="form-row">
+        <div class="field"><label>Your Name <span class="req">*</span></label><input id="f_requester" placeholder="Your full name" required></div>
+        <div class="field"><label>Your Email <span class="req">*</span></label><input id="f_email" type="email" placeholder="you@can-one.com" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Device / Equipment Type <span class="req">*</span></label>
+          <select id="f_device_type">
+            <option value="">Select...</option>
+            <option>Laptop / Desktop</option>
+            <option>Monitor</option>
+            <option>Printer / Scanner</option>
+            <option>Keyboard / Mouse</option>
+            <option>Phone</option>
+            <option>Other peripheral</option>
+          </select>
+        </div>
+        <div class="field"><label>Asset / Serial Number</label><input id="f_asset" placeholder="If known"></div>
+      </div>
+      <div class="field full"><label>Description of Issue <span class="req">*</span></label><textarea id="f_desc" placeholder="What is wrong with the device?" required></textarea></div>
+      <div class="field full"><label>Additional Notes</label><textarea id="f_notes" placeholder="Any other details, like when it started..."></textarea></div>
+    `,
+    getData: () => ({
+      'Ticket_Type':     { value: 'Hardware / Equipment' },
+      'Requester_Name':  { value: v('f_requester') },
+      'Requester_Email': { value: v('f_email') },
+      'Device_Type':     { value: v('f_device_type') },
+      'Asset_Number':    { value: v('f_asset') },
+      'Description':     { value: v('f_desc') },
+      'Notes':           { value: v('f_notes') },
+      'Priority':        { value: currentPriority },
+    })
+  },
+  software: {
+    icon: '💾', title: 'Software / Application Help', sub: 'Request installs, licenses, or report app issues',
+    fields: () => `
+      <div class="form-row">
+        <div class="field"><label>Your Name <span class="req">*</span></label><input id="f_requester" placeholder="Your full name" required></div>
+        <div class="field"><label>Your Email <span class="req">*</span></label><input id="f_email" type="email" placeholder="you@can-one.com" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Application Name <span class="req">*</span></label><input id="f_app" placeholder="e.g. Microsoft Excel" required></div>
+        <div class="field"><label>Request Type <span class="req">*</span></label>
+          <select id="f_req_type">
+            <option value="">Select...</option>
+            <option>Install / Setup</option>
+            <option>License needed</option>
+            <option>App not working</option>
+            <option>Error / Crash</option>
+            <option>Update required</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field full"><label>Description <span class="req">*</span></label><textarea id="f_desc" placeholder="Describe the issue or what you need..." required></textarea></div>
+      <div class="field full"><label>Error Message (if any)</label><textarea id="f_error" placeholder="Paste any error messages here..."></textarea></div>
+    `,
+    getData: () => ({
+      'Ticket_Type':      { value: 'Software / Application' },
+      'Requester_Name':   { value: v('f_requester') },
+      'Requester_Email':  { value: v('f_email') },
+      'Application_Name': { value: v('f_app') },
+      'Request_Type':     { value: v('f_req_type') },
+      'Description':      { value: v('f_desc') },
+      'Error_Message':    { value: v('f_error') },
+      'Priority':         { value: currentPriority },
+    })
+  },
+  password: {
+    icon: '🔑', title: 'Password Reset', sub: 'Reset or recover access to a company system',
+    fields: () => `
+      <div class="form-row">
+        <div class="field"><label>Your Name <span class="req">*</span></label><input id="f_requester" placeholder="Your full name" required></div>
+        <div class="field"><label>Your Email <span class="req">*</span></label><input id="f_email" type="email" placeholder="you@can-one.com" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>System / Application <span class="req">*</span></label><input id="f_system" placeholder="e.g. Windows login, Kintone, email" required></div>
+        <div class="field"><label>Username / Account</label><input id="f_username" placeholder="Your username for that system"></div>
+      </div>
+      <div class="field full"><label>Additional Notes</label><textarea id="f_notes" placeholder="Any extra context that may help IT..."></textarea></div>
+    `,
+    getData: () => ({
+      'Ticket_Type':     { value: 'Password Reset' },
+      'Requester_Name':  { value: v('f_requester') },
+      'Requester_Email': { value: v('f_email') },
+      'System':          { value: v('f_system') },
+      'Username':        { value: v('f_username') },
+      'Notes':           { value: v('f_notes') },
+      'Priority':        { value: currentPriority },
+    })
+  },
+  access: {
+    icon: '🔐', title: 'Access & Permissions', sub: 'Request or modify access to systems and resources',
+    fields: () => `
+      <div class="form-row">
+        <div class="field"><label>Your Name <span class="req">*</span></label><input id="f_requester" placeholder="Your full name" required></div>
+        <div class="field"><label>Your Email <span class="req">*</span></label><input id="f_email" type="email" placeholder="you@can-one.com" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>System / Resource Needed <span class="req">*</span></label><input id="f_resource" placeholder="e.g. SharePoint folder, Salesforce" required></div>
+        <div class="field"><label>Access Type</label>
+          <select id="f_access_type">
+            <option value="">Select...</option>
+            <option>View only</option>
+            <option>Edit / Contribute</option>
+            <option>Full / Admin access</option>
+            <option>Remove access</option>
+          </select>
+        </div>
+      </div>
+      <div class="field full"><label>Business Justification <span class="req">*</span></label><textarea id="f_reason" placeholder="Why do you need this access?" required></textarea></div>
+      <div class="field full"><label>Manager Approval</label><input id="f_manager" placeholder="Manager's name (if pre-approved)"></div>
+    `,
+    getData: () => ({
+      'Ticket_Type':        { value: 'Access & Permissions' },
+      'Requester_Name':     { value: v('f_requester') },
+      'Requester_Email':    { value: v('f_email') },
+      'Resource_Requested': { value: v('f_resource') },
+      'Access_Type':        { value: v('f_access_type') },
+      'Business_Reason':    { value: v('f_reason') },
+      'Manager_Approval':   { value: v('f_manager') },
+      'Priority':           { value: currentPriority },
+    })
+  }
+};
 
-<body>
+function v(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
 
-<header>
-  <div class="logo">
-    <picture>
-      <source srcset="assets/logo.webp" type="image/webp">
-      <img src="assets/logo.png" alt="Can-One USA" class="logo-img">
-    </picture>
-    <div>
-      <div class="logo-text">Can-one USA</div>
-      <div class="logo-sub">IT Help Desk</div>
+function openForm(type) {
+  currentFormType = type;
+  currentPriority = 'Medium';
+  const f = FORMS[type];
+  document.getElementById('fh-icon').textContent = f.icon;
+  document.getElementById('fh-title').textContent = f.title;
+  document.getElementById('fh-sub').textContent = f.sub;
+  document.getElementById('form-body').innerHTML = `
+    ${f.fields()}
+    <hr class="divider">
+    <div class="field full">
+      <label>Priority</label>
+      <div class="priority-row">
+        <button class="priority-btn" data-p="Low" onclick="setPriority('Low',this)">🟢 Low</button>
+        <button class="priority-btn active" data-p="Medium" onclick="setPriority('Medium',this)">🟡 Medium</button>
+        <button class="priority-btn" data-p="High" onclick="setPriority('High',this)">🔴 High</button>
+      </div>
     </div>
-  </div>
-  <div class="header-badge">SUPPORT PORTAL</div>
-</header>
-
-<div class="hero">
-  <h1>How can we help you today?</h1>
-  <p>Select the category that best describes your request and we'll route it to the right team.</p>
-</div>
-
-<main>
-
-<div id="card-section">
-  <div class="section-label">Select a request type</div>
-  <div class="card-grid">
-
-    <div class="ticket-card" onclick="openForm('newhire')">
-      <div class="card-icon">🧑‍💼</div>
-      <div class="card-title">New Hire Setup</div>
-      <div class="card-desc">Onboard a new employee — accounts, equipment, and access provisioning.</div>
-      <div class="card-arrow">Open request →</div>
+    <div class="form-footer">
+      <button class="btn-cancel" onclick="goBack()">Cancel</button>
+      <button class="btn-submit" id="submit-btn" onclick="submitTicket()">
+        <span id="btn-label">Submit Ticket</span>
+        <div class="spinner" id="btn-spinner"></div>
+      </button>
     </div>
+  `;
+  document.getElementById('card-section').style.display = 'none';
+  document.getElementById('success-panel').style.display = 'none';
+  document.getElementById('form-panel').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-    <div class="ticket-card" onclick="openForm('general')">
-      <div class="card-icon">🎫</div>
-      <div class="card-title">General IT Request</div>
-      <div class="card-desc">Anything that doesn't fit another category.</div>
-      <div class="card-arrow">Open request →</div>
-    </div>
+function setPriority(p, el) {
+  currentPriority = p;
+  document.querySelectorAll('.priority-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
 
-    <div class="ticket-card" onclick="openForm('internet')">
-      <div class="card-icon">🌐</div>
-      <div class="card-title">Internet / Connectivity</div>
-      <div class="card-desc">Wi-Fi, VPN, or network issues.</div>
-      <div class="card-arrow">Open request →</div>
-    </div>
+function goBack() {
+  document.getElementById('form-panel').style.display = 'none';
+  document.getElementById('success-panel').style.display = 'none';
+  document.getElementById('card-section').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-    <div class="ticket-card" onclick="openForm('hardware')">
-      <div class="card-icon">🖥️</div>
-      <div class="card-title">Hardware / Equipment</div>
-      <div class="card-desc">Devices, printers, monitors, etc.</div>
-      <div class="card-arrow">Open request →</div>
-    </div>
+async function submitTicket() {
+  const f = FORMS[currentFormType];
+  const btn = document.getElementById('submit-btn');
+  const spinner = document.getElementById('btn-spinner');
+  const label = document.getElementById('btn-label');
 
-    <div class="ticket-card" onclick="openForm('software')">
-      <div class="card-icon">💾</div>
-      <div class="card-title">Software / Applications</div>
-      <div class="card-desc">Apps, installs, or errors.</div>
-      <div class="card-arrow">Open request →</div>
-    </div>
+  // Basic validation
+  const requiredFields = document.querySelectorAll('#form-body [required]');
+  for (const field of requiredFields) {
+    if (!field.value.trim()) {
+      field.focus();
+      field.style.borderColor = 'var(--accent)';
+      field.addEventListener('input', () => field.style.borderColor = '', { once: true });
+      return;
+    }
+  }
 
-    <div class="ticket-card" onclick="openForm('password')">
-      <div class="card-icon">🔑</div>
-      <div class="card-title">Password Reset</div>
-      <div class="card-desc">Reset or recover passwords.</div>
-      <div class="card-arrow">Open request →</div>
-    </div>
+  // Loading state
+  btn.disabled = true;
+  label.textContent = 'Submitting…';
+  spinner.style.display = 'block';
 
-    <div class="ticket-card" onclick="openForm('access')">
-      <div class="card-icon">🔐</div>
-      <div class="card-title">Access & Permissions</div>
-      <div class="card-desc">Request system access.</div>
-      <div class="card-arrow">Open request →</div>
-    </div>
+  const record = f.getData();
+  // Add timestamp
+  record['Submitted_At'] = { value: new Date().toISOString() };
 
-  </div>
-</div>
+  try {
+    const targetUrl = `https://${KINTONE_SUBDOMAIN}.kintone.com/k/v1/record.json`;
+    const response = await fetch(
+      `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Cybozu-API-Token': KINTONE_API_TOKEN,
+        },
+        body: JSON.stringify({ app: KINTONE_APP_ID, record })
+      }
+    );
 
-<div id="form-panel"></div>
-<div id="success-panel"></div>
+    const data = await response.json();
 
-</main>
-
-<footer>Can-one USA · IT Help Desk Portal</footer>
-
-<script src="script.js" defer></script>
-</body>
-</html>
+    if (response.ok && data.id) {
+      document.getElementById('ticket-ref').textContent = `Ticket #${data.id} · ${FORMS[currentFormType].title}`;
+      document.getElementById('form-panel').style.display = 'none';
+      document.getElementById('success-panel').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      throw new Error(data.message || 'Submission failed');
+    }
+  } catch (err) {
+    alert(`Error submitting ticket: ${err.message}\n\nPlease check that your Kintone App ID and API Token are correctly configured.`);
+    btn.disabled = false;
+    label.textContent = 'Submit Ticket';
+    spinner.style.display = 'none';
+  }
+}
