@@ -1,0 +1,186 @@
+:root {
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --border: #e2e6ed;
+  --primary: #1f6f3e;
+  --primary-hover: #185a32;
+  --primary-light: #e6f4ec;
+  --accent: #e8323c;
+  --text: #1a1f2e;
+  --text-muted: #6b7489;
+  --success: #1a8a5a;
+  --success-bg: #e6f7f0;
+  --radius: 10px;
+  --shadow: 0 2px 12px rgba(26,77,143,0.08);
+  --shadow-lg: 0 8px 32px rgba(26,77,143,0.13);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* HEADER */
+header {
+  background: var(--primary);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-img {
+  height: 40px;
+}
+
+.logo-text {
+  color: #fff;
+  font-weight: 600;
+}
+
+.logo-sub {
+  color: rgba(255,255,255,0.6);
+  font-size: 0.75rem;
+}
+
+.header-badge {
+  background: rgba(255,255,255,0.15);
+  padding: 5px 12px;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 0.75rem;
+}
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--primary), #1e5ca8);
+  color: white;
+  padding: 50px 20px;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.hero p {
+  opacity: 0.8;
+}
+
+/* MAIN */
+main {
+  max-width: 900px;
+  margin: auto;
+  padding: 2rem;
+}
+
+/* GRID */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.ticket-card {
+  background: white;
+  padding: 1.2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.ticket-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary);
+}
+
+.card-icon {
+  font-size: 1.5rem;
+}
+
+.card-title {
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.card-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* FORM */
+#form-panel {
+  display: none;
+  background: white;
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+textarea {
+  min-height: 100px;
+}
+
+button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:first-of-type {
+  background: var(--primary);
+  color: white;
+}
+
+button:last-of-type {
+  background: #ccc;
+}
+
+/* SUCCESS */
+#success-panel {
+  display: none;
+  text-align: center;
+  padding: 2rem;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
