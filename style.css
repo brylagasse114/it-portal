@@ -179,7 +179,7 @@ main {
 .card-arrow {
   margin-top: auto;
   font-size: 0.75rem;
-  color: var(--primary);
+  color: var(--primary-hover);
   font-weight: 500;
   display: flex; align-items: center; gap: 4px;
 }
@@ -200,7 +200,7 @@ main {
 }
 
 .form-header {
-  background: var(--primary);
+  background: var(--primary-hover);
   color: #fff;
   padding: 1.2rem 1.5rem;
   display: flex;
@@ -345,7 +345,7 @@ textarea { resize: vertical; min-height: 90px; }
 .btn-cancel:hover { border-color: #aaa; color: var(--text); }
 
 .btn-submit {
-  background: var(--primary);
+  background: var(--primary-hover);
   border: none;
   color: #fff;
   padding: 9px 24px;
