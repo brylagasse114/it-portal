@@ -60,13 +60,13 @@ header {
   display: block;
 }
 .logo-text {
-  color: #fff;
+  color: #185a32;
   font-weight: 600;
   font-size: 1rem;
   letter-spacing: 0.01em;
 }
 .logo-sub {
-  color: rgba(255,255,255,0.55);
+  color: #185a32;
   font-size: 0.72rem;
   font-weight: 400;
   letter-spacing: 0.06em;
@@ -75,7 +75,7 @@ header {
 }
 .header-badge {
   background: rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.85);
+  color:#185a32;
   font-size: 0.72rem;
   font-weight: 500;
   padding: 4px 10px;
