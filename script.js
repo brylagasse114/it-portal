@@ -298,7 +298,6 @@ async function submitTicket() {
   spinner.style.display = 'block';
 
   const record = f.getData();
-  record['Submitted_At'] = { value: new Date().toISOString() };
 
   try {
     const targetUrl = `https://${KINTONE_SUBDOMAIN}.kintone.com/k/v1/record.json`;
