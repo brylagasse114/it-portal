@@ -2,7 +2,7 @@
 //  KINTONE CONFIGURATION — fill these in!
 // ─────────────────────────────────────────────
 const KINTONE_SUBDOMAIN = 'can-one';
-const KINTONE_APP_ID    = '30';
+const KINTONE_APP_ID    = 30;
 const KINTONE_API_TOKEN = 'TpgvChluSwcEX8mxYcP53qFeqRZtVvRC7BzvhGED';
 // ─────────────────────────────────────────────
 
@@ -71,7 +71,7 @@ const FORMS = {
       </div>
       <div class="form-row">
         <div class="field"><label>Issue Type <span class="req">*</span></label>
-          <select id="f_issue_type">
+          <select id="f_issue_type" required>
             <option value="">Select...</option>
             <option>No internet connection</option>
             <option>Slow internet</option>
@@ -106,7 +106,7 @@ const FORMS = {
       </div>
       <div class="form-row">
         <div class="field"><label>Device / Equipment Type <span class="req">*</span></label>
-          <select id="f_device_type">
+          <select id="f_device_type" required>
             <option value="">Select...</option>
             <option>Laptop / Desktop</option>
             <option>Monitor</option>
@@ -142,7 +142,7 @@ const FORMS = {
       <div class="form-row">
         <div class="field"><label>Application Name <span class="req">*</span></label><input id="f_app" placeholder="e.g. Microsoft Excel" required></div>
         <div class="field"><label>Request Type <span class="req">*</span></label>
-          <select id="f_req_type">
+          <select id="f_req_type" required>
             <option value="">Select...</option>
             <option>Install / Setup</option>
             <option>License needed</option>
@@ -298,7 +298,6 @@ async function submitTicket() {
   spinner.style.display = 'block';
 
   const record = f.getData();
-  // Add timestamp
   record['Submitted_At'] = { value: new Date().toISOString() };
 
   try {
